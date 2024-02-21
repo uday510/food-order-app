@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import RestaurentCard from "./RestaurentCard";
 import { useState } from "react";
 import Shimmer from "./Shimmer";
+import { Link } from "react-router-dom";
 
 const Body = () => {
 
@@ -19,13 +20,15 @@ const Body = () => {
     const data = await fetch('https://www.swiggy.com/dapi/restaurants/list/v5?lat=17.4485835&lng=78.39080349999999');
 
     const jsonData = await data.json();
+    console.log("jsonData >> ", jsonData);
 
     setListOfRestaurents(jsonData?.data?.cards[4]?.card?.card?.gridElements?.infoWithStyle?.restaurants);
     setFilteredRestaurents(jsonData?.data?.cards[4]?.card?.card?.gridElements?.infoWithStyle?.restaurants);
   }
 
+  console.log(listOfRestaurents);
   return (
-    !listOfRestaurents ? <Shimmer /> :
+    listOfRestaurents.length === 0 ? <Shimmer /> :
       <div className="body">
         <div className="filter">
           <div className="search-box">
@@ -35,7 +38,6 @@ const Body = () => {
             <button className="search-btn" onClick={() => {
               const filteredRestaurents = listOfRestaurents.filter((restaurant) => restaurant.info.name.toLowerCase().includes(searchText.toLowerCase()));
               setFilteredRestaurents(filteredRestaurents);
-
             }}>Search</button>
           </div>
           <button className="filter-btn" onClick={() => {
@@ -45,9 +47,16 @@ const Body = () => {
           >Top Rated Restaurents</button>
         </div>
         <div className="res-container">
-          {filteredRestaurents.map((restaurant) => {
-            return <RestaurentCard key={restaurant.info.id} data={restaurant} />
-          })}
+          {filteredRestaurents.map((restaurant) => 
+            (
+            <Link
+              key={restaurant.info.id}
+              to={`/restaurents/${restaurant.info.id}`}
+            >
+              <RestaurentCard data={restaurant} />
+            </Link>
+          )
+          )}
         </div>
       </div>
   )
